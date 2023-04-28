@@ -102,6 +102,44 @@ const deleteBloodBag = async (req, res) => {
     }
 }
 
+function buildWhere(filters) {
+    if (Object.keys(filters)?.length > 0) {
+        let toReturn = 'where '
+        Object.keys(filters)?.forEach((key) => {
+            switch (key) {
+                case "b_name":
+                    filters?.b_name?.length > 0 ? toReturn += `b_name ilike '${filters?.b_name}' and ` : null;
+                    break;
+                case "bloodType":
+                    filters?.bloodType?.length > 0 ? toReturn += `blood_type = '${filters?.bloodType}' and ` : null;
+                    break;
+                case "donation_date":
+                    filters?.donation_date?.length > 0 ? toReturn += `donation_date >= '${filters?.country}' and ` : null;
+                    break;
+                case "expiry_date":
+                    filters?.expiry_date?.length > 0 ? toReturn += `expiry_date >= '${filters?.expiry_date}' and ` : null;
+                    break;
+                case "quantity_ml":
+                    filters?.quantity_ml?.length > 0 ? toReturn += `quantity_ml => ${filters?.quantity_ml} and ` : null;
+                    break;
+                case "remaining_ml":
+                    filters?.remaining_ml?.length > 0 ? toReturn += `remaining_ml >= ${filters?.remaining_ml} and ` : null;
+                    break;
+                default:
+                    break;
+            }
+        });
+        if (toReturn == 'where ') {
+            return;
+        } else {
+            return toReturn.slice(0, -5);
+        }
+    } else {
+        return;
+    }
+}
+
+
 module.exports = {
     createBloodBag,
     updateBloodBag,
