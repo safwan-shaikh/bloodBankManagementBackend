@@ -95,8 +95,25 @@ const deleteDonor = async (req, res) => {
     }
 }
 
+const getDonors = async (req, res) => {
+    try {
+        //add joi validations
+        const body = req?.body;
+        const { rows } = await db.client.query(
+            `select * from donor ${buildWhere(body?.filters)} order by donor_id desc`
+        );
+        console.log({ dquery: `select * from donor ${buildWhere(body?.filters)} order by donor_id desc` })
+        return res.status(200).send({ type: 'success', message: rows });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
+
+
 module.exports = {
     createDonor,
     updateDonor,
-    deleteDonor
+    deleteDonor,
+    getDonors
 }
