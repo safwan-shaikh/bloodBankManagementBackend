@@ -90,7 +90,36 @@ const deleteBank = async (req, res) => {
         return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
     }
 }
-
+function buildWhere(filters) {
+    if (Object.keys(filters)?.length > 0) {
+        let toReturn = 'where '
+        Object.keys(filters)?.forEach((key) => {
+            switch (key) {
+                case "b_name":
+                    filters?.b_name?.length > 0 ? toReturn += `b_name ilike '%${filters?.b_name}%' and ` : null;
+                    break;
+                case "country":
+                    filters?.country?.length > 0 ? toReturn += `country ilike '&${filters?.country}%' and ` : null;
+                    break;
+                case "phone":
+                    filters?.phone?.length > 0 ? toReturn += `phone ilike '%${filters?.phone}%' and ` : null;
+                    break;
+                case "email":
+                    filters?.email?.length > 0 ? toReturn += `email ilike '%${filters?.email}%' and ` : null;
+                    break;
+                default:
+                    break;
+            }
+        });
+        if (toReturn == 'where ') {
+            return;
+        } else {
+            return toReturn.slice(0, -5);
+        }
+    } else {
+        return;
+    }
+}
 const getBanks = async (req, res) => {
     try {
         //add joi validations
