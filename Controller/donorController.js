@@ -60,9 +60,43 @@ const updateDonor = async (req, res) => {
     }
 }
 
+const deleteDonor = async (req, res) => {
+    try {
+        //add joi validations
 
+        const donor_id = req.params['donor_id'];
+        if (!donor_id) {
+            return res.status(400).send({ type: 'error', message: 'Donor Id is Required' });
+        }
+
+        const d_details = await db.client.query(
+            'select * from donor where donor_id = $1', [donor_id]
+        );
+        if (d_details?.rows?.length == 0) {
+            return res.status(400).send({ type: 'error', message: 'Donor does not exists' });
+        }
+
+        const { rows } = await db.client.query(
+            'select * from blood_bag where donor_id = $1 limit 1', [donor_id]
+        );
+
+        if (rows?.length > 0) {
+            return res.status(400).send({ type: 'error', message: 'Donor Cannot be deleted' });
+        }
+
+        await db.client.query(
+            'delete from donor where donor_id = $1', [donor_id]
+        );
+
+        return res.status(200).send({ type: 'success', message: "User Deleted Successfully" });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
 
 module.exports = {
     createDonor,
-    updateDonor
+    updateDonor,
+    deleteDonor
 }
