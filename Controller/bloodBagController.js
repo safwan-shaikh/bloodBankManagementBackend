@@ -67,7 +67,43 @@ const updateBloodBag = async (req, res) => {
     }
 }
 
+const deleteBloodBag = async (req, res) => {
+    try {
+        //add joi validations
+
+        const bag_id = req.params['bag_id'];
+        if (!bag_id) {
+            return res.status(400).send({ type: 'error', message: 'Bag Id is Required' });
+        }
+
+        const { rows } = await db.client.query(
+            'select * from blood_bag where bag_id = $1', [bag_id]
+        );
+        if (rows?.length == 0) {
+            return res.status(400).send({ type: 'error', message: 'Blood bag does not exists' });
+        }
+
+        const patients = await db.client.query(
+            'select * from blood_bag where donor_id = $1 limit 1', [donor_id]
+        );
+
+        if (patients?.rows?.length > 0) {
+            return res.status(400).send({ type: 'error', message: 'Blood bag Cannot be deleted' });
+        }
+
+        await db.client.query(
+            'delete from blood_bag where bag_id = $1', [bag_id]
+        );
+
+        return res.status(200).send({ type: 'success', message: "Blood bag Deleted Successfully" });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
+
 module.exports = {
     createBloodBag,
-    updateBloodBag
+    updateBloodBag,
+    deleteBloodBag
 }
