@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser')
 const cors = require('cors');
 
 const app = express();
+const donorRoutes = require("./Routes/donorRoutes");
 const bloodBankRoutes = require("./Routes/bankRoutes");
 //middleware
 app.use(express.json())
@@ -12,7 +13,7 @@ app.use(cookieParser())
 app.use(cors());
 
 app.use('/api/bloodBank', bloodBankRoutes);
-
+app.use('/api/donor', donorRoutes);
 
 
 app.listen(8080, () => {
