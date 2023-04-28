@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 const donorRoutes = require("./Routes/donorRoutes");
 const bloodBankRoutes = require("./Routes/bankRoutes");
-
+const bloodBagRoutes = require("./Routes/bloodBagRoutes");
 //middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -15,7 +15,7 @@ app.use(cors());
 
 app.use('/api/bloodBank', bloodBankRoutes);
 app.use('/api/donor', donorRoutes);
-
+app.use('/api/bloodBag', bloodBagRoutes);
 
 app.listen(8080, () => {
     console.log('Server started on port 8080');
