@@ -6,6 +6,7 @@ const cors = require('cors');
 const app = express();
 const donorRoutes = require("./Routes/donorRoutes");
 const bloodBankRoutes = require("./Routes/bankRoutes");
+
 //middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
