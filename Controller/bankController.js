@@ -66,8 +66,25 @@ const getBanks = async (req, res) => {
         return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
     }
 }
+
+const getBankDonors = async (req, res) => {
+    try {
+        //add joi validations
+        const bank_id = req.params['bank_id'];
+        const body = req?.body;
+        const { rows } = await db.client.query(
+            `select bb2.bag_id as id,d.first_name as label from blood_bank bb inner join blood_bag bb2 on bb.blood_bank_id =bb2.bb_id inner join donor d on bb2.donor_id=d.donor_id where bb2.remaining_ml >= $1 and bb2.blood_type = $2 and bb2.expiry_date > $3 and bb.blood_bank_id = $4`,
+            [body?.quantity_ml, body?.blood_type, new Date(), bank_id]
+        );
+        return res.status(200).send({ type: 'success', message: rows });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
 module.exports = {
     createBank,
     updateBank,
-    getBanks
+    getBanks,
+    getBankDonors
 }
