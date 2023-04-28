@@ -52,8 +52,22 @@ const updateBank = async (req, res) => {
     }
 }
 
-
+const getBanks = async (req, res) => {
+    try {
+        //add joi validations
+        const body = req?.body;
+        const { rows } = await db.client.query(
+            `select * from blood_bank ${buildWhere(body?.filters || {})} order by blood_bank_id desc`
+        );
+        console.log({ query: `select * from blood_bank ${buildWhere(body?.filters || {})} order by blood_bank_id desc` })
+        return res.status(200).send({ type: 'success', message: rows });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
 module.exports = {
     createBank,
-    updateBank
+    updateBank,
+    getBanks
 }
