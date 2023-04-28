@@ -139,9 +139,25 @@ function buildWhere(filters) {
     }
 }
 
+const getBloodBags = async (req, res) => {
+    try {
+        //add joi validations
+        const body = req?.body;
+        const { rows } = await db.client.query(
+            `select * from blood_bag bg inner join blood_bank bb on bg.bb_id=bb.blood_bank_id inner join donor d on bg.donor_id = d.donor_id ${buildWhere(body?.filters) || ''} order by bag_id desc`
+        );
+
+        return res.status(200).send({ type: 'success', message: rows });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
+
 
 module.exports = {
     createBloodBag,
     updateBloodBag,
-    deleteBloodBag
+    deleteBloodBag,
+    getBloodBags
 }
