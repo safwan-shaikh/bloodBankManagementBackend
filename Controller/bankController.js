@@ -52,6 +52,45 @@ const updateBank = async (req, res) => {
     }
 }
 
+const deleteBank = async (req, res) => {
+    try {
+        //add joi validations
+
+        const bank_id = req.params['bank_id'];
+        if (!bank_id) {
+            return res.status(400).send({ type: 'error', message: 'Blood Bank Id is Required' });
+        }
+
+        const { rows } = await db.client.query(
+            'select * from blood_bank where blood_bank_id = $1', [bank_id]
+        );
+        if (rows?.length == 0) {
+            return res.status(400).send({ type: 'error', message: 'Blood bank does not exists' });
+        }
+
+        const bags = await db.client.query(
+            'select * from blood_bag where bb_id = $1 limit 1', [bank_id]
+        );
+
+        const hospital = await db.client.query(
+            'select * from hospital_bank_rln where bank_id = $1 limit 1', [bank_id]
+        );
+
+        if (bags?.rows?.length > 0 || hospital?.rows?.length > 0) {
+            return res.status(400).send({ type: 'error', message: 'Blood bank Cannot be deleted' });
+        }
+
+        await db.client.query(
+            'delete from blood_bank where blood_bank_id = $1', [bank_id]
+        );
+
+        return res.status(200).send({ type: 'success', message: "Blood bank Deleted Successfully" });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
+
 const getBanks = async (req, res) => {
     try {
         //add joi validations
