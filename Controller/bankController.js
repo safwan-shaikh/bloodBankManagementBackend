@@ -192,6 +192,7 @@ const getBankDetails = async (req, res) => {
 module.exports = {
     createBank,
     updateBank,
+    deleteBank,
     getBanks,
     getBankDonors,
     getBankDetails
