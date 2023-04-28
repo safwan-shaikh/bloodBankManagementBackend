@@ -110,10 +110,49 @@ const getDonors = async (req, res) => {
     }
 }
 
+const getDonorDetails = async (req, res) => {
+    try {
+        //add joi validations
+
+        const donor_id = req.params['donor_id'];
+        if (!donor_id) {
+            return res.status(400).send({ type: 'error', message: 'Donor Id is Required' });
+        }
+
+        const { rows } = await db.client.query(
+            'select * from donor where donor_id = $1', [donor_id]
+        );
+
+        if (rows?.length == 0) {
+            return res.status(400).send({ type: 'error', message: 'Donor does not exists' });
+        }
+
+        const donations = await db.client.query(
+            'select * from blood_bag where donor_id = $1', [donor_id]
+        );
+
+        const donatedTo = await db.client.query(
+            'select p.hospital_id ,p.first_name ,p.last_name ,p.gender ,p.dob ,p.received_at ,p.received_quantity_ml,p.pid from blood_bag bb inner join patient p on bb.bag_id = p.blood_bag_id where bb.donor_id=$1', [donor_id]
+        );
+
+        let toReturn = {
+            ...rows[0],
+            donations: donations?.rows || [],
+            donatedTo: donatedTo?.rows || [],
+        };
+
+        return res.status(200).send({ type: 'success', message: toReturn });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
+
 
 module.exports = {
     createDonor,
     updateDonor,
     deleteDonor,
-    getDonors
+    getDonors,
+    getDonorDetails
 }
