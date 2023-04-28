@@ -82,9 +82,49 @@ const getBankDonors = async (req, res) => {
         return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
     }
 }
+
+const getBankDetails = async (req, res) => {
+    try {
+        //add joi validations
+
+        const bank_id = req.params['bank_id'];
+        if (!bank_id) {
+            return res.status(400).send({ type: 'error', message: 'Blood Bank Id is Required' });
+        }
+
+        const { rows } = await db.client.query(
+            'select * from blood_bank where blood_bank_id = $1', [bank_id]
+        );
+        if (rows?.length == 0) {
+            return res.status(400).send({ type: 'error', message: 'Blood bank does not exists' });
+        }
+
+        const bags = await db.client.query(
+            'select * from blood_bag where bb_id = $1', [bank_id]
+        );
+
+        const hospitals = await db.client.query(
+            'select * from hospital where hid in (select hospital_id from hospital_bank_rln where bank_id=$1) ', [bank_id]
+        );
+
+        let toReturn = {
+            ...rows[0],
+            bags: donations?.rows || [],
+            hospitals: donatedTo?.rows || [],
+        };
+
+        return res.status(200).send({ type: 'success', message: toReturn });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
+
+
 module.exports = {
     createBank,
     updateBank,
     getBanks,
-    getBankDonors
+    getBankDonors,
+    getBankDetails
 }
