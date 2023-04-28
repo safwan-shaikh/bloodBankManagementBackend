@@ -154,10 +154,44 @@ const getBloodBags = async (req, res) => {
     }
 }
 
+const getBloodBagDetails = async (req, res) => {
+    try {
+        //add joi validations
+
+        const bag_id = req.params['bag_id'];
+
+        if (!bag_id) {
+            return res.status(400).send({ type: 'error', message: 'Blood Bag Id is Required' });
+        }
+
+        const { rows } = await db.client.query(
+            'select * from blood_bag bg inner join blood_bank bb on bg.bb_id=bb.blood_bank_id inner join donor d on bg.donor_id=d.donor_id where bag_id = $1', [bag_id]
+        );
+
+        if (rows?.length == 0) {
+            return res.status(400).send({ type: 'error', message: 'Blood bag does not exists' });
+        }
+
+        const donatedTo = await db.client.query(
+            'select * from patient p where blood_bag_id = $1', [donor_id]
+        );
+
+        let toReturn = {
+            ...rows[0],
+            donatedTo: donatedTo?.rows || [],
+        };
+
+        return res.status(200).send({ type: 'success', message: toReturn });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ type: 'error', message: 'Something Went Wrong!' });
+    }
+}
 
 module.exports = {
     createBloodBag,
     updateBloodBag,
     deleteBloodBag,
-    getBloodBags
+    getBloodBags,
+    getBloodBagDetails
 }

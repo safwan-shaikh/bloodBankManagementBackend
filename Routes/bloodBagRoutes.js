@@ -1,6 +1,6 @@
 const express = require('express')
 
-const { createBloodBag, updateBloodBag, deleteBloodBag, getBloodBags } = require('../Controller/bloodBagController');
+const { createBloodBag, updateBloodBag, deleteBloodBag, getBloodBags, getBloodBagDetails } = require('../Controller/bloodBagController');
 
 const router = express.Router()
 
@@ -11,5 +11,7 @@ router.patch('/updateBloodBag/:bag_id', updateBloodBag);
 router.delete('/deleteBloodBag/:bag_id', deleteBloodBag);
 
 router.post('/getBloodBags', getBloodBags);
+
+router.get('/getBloodBag/:bag_id', getBloodBagDetails);
 
 module.exports = router
